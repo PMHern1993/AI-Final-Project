@@ -447,5 +447,23 @@ class Controller:
 			for event in pygame.event.get():
 				self.handle_event(event)
 
+#--------------------------------------------------------------------------------------------#				
+	def run_auto(self, guesses):
+        # Run the game with a list of automated guesses.
+        # Args:
+        #    guesses (list): A list of words guessed by the GA.
+        # Returns:
+        #    score (int): A score based on performance, e.g., the number of attempts needed.
+        
+		self.reset()  # Reset the game state for each new solution
+		score = 0
+		for guess in guesses:
+			result = self.make_guess(guess)
+			score += 1
+			if result == "correct":  # Assuming this is the result when guessed correctly
+				break
+			
+		return score
+#--------------------------------------------------------------------------------------------#
 				
 

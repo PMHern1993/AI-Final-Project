@@ -12,4 +12,12 @@ To run the genetice alg(version6.py)
 Do the following 
 cd geneticeAlg and then run
 python version6.py
+
+After implementing the WOC Approach
+    - There is a set size for the number of experts that make up the crowd
+    - Each expert will run the GA 10 times for variability and to calculate statistics later on
+    - Each expert for a given run will save its best solution and add it to an agreement matrix
+        --> It works by seeing what position a given letter is found and increments that value by 1
+        --> For example, letter "T" was was found at posiion 1 among the experts 3 times across 5 experts
+    - After all 10 run for each expert in the crowd, a consensus solution is determine based on the agreement matrix
                     
