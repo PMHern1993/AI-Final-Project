@@ -6,6 +6,9 @@ import json
 from datetime import datetime
 from .game_state import GameState
 
+import numpy as np
+import time
+
 class Game:
 
 	def __init__(self):
@@ -21,6 +24,18 @@ class Game:
 		self.today = datetime.strptime(datetime.today().strftime("%m/%d/%Y"), "%m/%d/%Y")
 
 		self.setup()
+		
+		# Instance of word is created her, we can run genetic algorithm here as well
+		GREEN = '\033[92m'   # Correct letter in the correct position
+		YELLOW = '\033[93m'  # Correct letter but in the wrong position
+		RESET = '\033[0m'    # Reset color
+
+		ga_result, fitness = self.play_wordle_with_ga()
+		print(f"Resulting GA guess: {ga_result}")
+		print(f"Actual word: {self.word}")
+		#print(fitness)
+
+		
 	
 	def open_dictionaries(self):
 		with open("wordle\\resources\\answers-list.txt", "r") as f:
@@ -179,7 +194,111 @@ class Game:
 		if self.today <= datetime.strptime(last_play, "%m/%d/%Y"):
 				self.has_played_today = True
 
+###############																											     #############
+############### Everything below here is part of my attempt to translate Tyler's GA/WoC to Cristie's currently existing game ############# 
+###############																												 #############
 			
-			
+	def genetic_algorithm(self, population_size=20, generations=100, mutation_rate=0.1):
+		print("YIPEE")
+		population = self.initialize_population(population_size)
+		for generation in range(generations):
+			fitness_scores = [self.calculate_fitness(word) for word in population]
+			if self.word in population:
+				print(f"GA found the target word in generation {generation}!")
+				return self.word
+		
+			new_population = []
+			for _ in range(population_size // 2):
+				parent1, parent2 = self.select_parents(population, fitness_scores)
+				child1 = self.crossover(parent1, parent2)	
+				child1 = self.mutate(child1, mutation_rate)
 
+				child2 = self.crossover(parent2, parent1)
+				child2 = self.mutate(child2, mutation_rate)
+				new_population.extend([child1, child2])
+		
+			population = new_population
+			best_guess = max(population, key=self.calculate_fitness)
+			best_fitness = self.calculate_fitness(best_guess)
+		print(generation)
+		print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
+		print(f"Found in generation {generation}\nGA Finished - Best Guess:(hidden)")
+		return best_guess
+			
+	#Added self as argument to access valid_guesses
+	def initialize_population(self, size):
+		return [random.choice(self.valid_guesses) for _ in range(size)]
+			
+	def calculate_fitness(self, guess):
+		fitness = 0
+
+		#print(type(self.word), self.word)
+		#print(f"Type of guess: {type(guess)}")
+		for i in range(len(self.word)):
+			if guess[i] == self.word[i]:
+				fitness += 2
+			elif guess[i] in self.word:
+				fitness += 1
+		return fitness
+	
+	def select_parents(self, population, fitness_scores):
+		# Selects 2 parents via probability
+    	# Higher probability (fitness) --> more likely to be selected
+		return random.choices(population, weights=fitness_scores, k=2)
+	
+	def crossover(self, parent1, parent2):
+		child = ""
+		# random.random() returns a value in the range [0, 1)
+		for i in range(len(parent1)):
+			child += parent1[i] if random.random() < 0.5 else parent2[i]
+		return child
+	
+	def mutate(self, word, mutation_rate=0.1):
+		word_as_list = list(word)
+		for i in range(len(word_as_list)):
+			if random.random() < mutation_rate:
+				word_as_list[i] = random.choice("abcdefghijklmnopqrstuvwxyz")
+		return ''.join(word_as_list)
+
+	def play_wordle_with_ga(self):
+		print("Ga is starting...")
+		ga_result = self.genetic_algorithm()
+		
+		fitness = self.calculate_fitness(ga_result)
+
+		return ga_result, fitness
+	
+	def wisdomOfCrowds(self):
+		crowd_size = 5
+		crowd_data = {}
+		experts = [f'exper_{i}' for i in range(1, crowd_size + 1)] # each will run the GA separately
+		ga_runs = [f'run_{i}' for i in range(1, 11)] # Used to obtain variability
+		for expert in experts:
+			crowd_data[expert] = {'runs': {}}
+
+		agreement_matrices = {run: np.zeros((5, 26), dtype=int) for run in ga_runs}
+		num = 1
+		
+		for expert in experts:
+			print(f"Starting GA runs for {expert}")
+
+			for run in ga_runs:
+				start_time = time.time()
+				print(f"\tStarting {run} for {expert}")
+				ga_result, fitness = self.play_wordle_with_ga()
+
+				end_time = time.time()
+
+				crowd_data[expert]['runs'][run] = {
+            		'execution_time': end_time - start_time,
+            		'best_solution': ga_result,
+            		'solution_fitness': fitness,
+            		'ga_instance': f'ga_instance_{num}'
+        		}
+
+				num += 1
+
+				for i, letter in enumerate(ga_result):
+					column_index = ord(letter) - ord('a')
+					agreement_matrices[run][i][column_index] += 1
 

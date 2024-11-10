@@ -417,7 +417,6 @@ class Controller:
 		clock = Clock()
 		
 
-
 		play = True
 		while play:
 			

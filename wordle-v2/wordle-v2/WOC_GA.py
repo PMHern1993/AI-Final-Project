@@ -9,12 +9,11 @@ RESET = '\033[0m'    # Reset color
 
 # Load guess and answer lists from text files
 def load_word_list(filename):
-    with open(filename, 'r') as file:
-        return [line.strip() for line in file]
+        return [line.strip() for line in filename]
 
 # Load the lists
-GUESS_LIST = load_word_list('guesses-list.txt')
-ANSWER_LIST = load_word_list('answers-list.txt')
+GUESS_LIST = load_word_list('resources/guesses-list.txt')
+ANSWER_LIST = load_word_list('resources/answers-list.txt')
 TARGET_WORD = random.choice(ANSWER_LIST)  # Randomly choose a target from the answer list
 
 print(TARGET_WORD)
@@ -79,8 +78,8 @@ def genetic_algorithm(population_size=20, generations=100, mutation_rate=0.1):
         population = new_population
         best_guess = max(population, key=calculate_fitness)
         best_fitness = calculate_fitness(best_guess)
-    print("YIPEE WOO")
-    #print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
+
+    print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
     # print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {calculate_fitness(best_guess)}")
 
     print(f"Found in generation {generation}\nGA Finished - Best Guess:(hidden)")
