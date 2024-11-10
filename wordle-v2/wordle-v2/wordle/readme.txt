@@ -7,4 +7,9 @@ run code by being in AI-Final-Project\wordle-v2\wordle-v2  ***how ever you have 
         pip install pygame_menu
                     pygame
                     win10toast
+
+To run the genetice alg(version6.py)
+Do the following 
+cd geneticeAlg and then run
+python version6.py
                     
