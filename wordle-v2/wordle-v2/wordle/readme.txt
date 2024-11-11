@@ -21,3 +21,6 @@ After implementing the WOC Approach
         --> For example, letter "T" was was found at posiion 1 among the experts 3 times across 5 experts
     - After all 10 run for each expert in the crowd, a consensus solution is determine based on the agreement matrix
                     
+11/11: The final game has been implemented with the GA/WoC algorithm fully melded in. It is currently printing out a heatmap with statistics
+       and running the user side game after that is closed out. It is run in the same way that is originally stated, python -m wordle in the
+       AI-Final-Project\wordle-v2\wordle-v2 pathing.

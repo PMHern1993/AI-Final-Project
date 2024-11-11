@@ -72,10 +72,10 @@ class Game:
 	def setup(self):
 		self.open_dictionaries()
 		self.open_scoreboard()
-		if not self.fun_mode:
-			self.check_day()
-			if not self.has_played_today:
-				self.exit_fun_mode()
+		#if not self.fun_mode:
+			#self.check_day()
+			#if not self.has_played_today:
+				#self.exit_fun_mode()
 		self.select_word()
 		random.seed()
 		
@@ -342,7 +342,9 @@ class Game:
 				self.finalPercent += 1
 
 		self.finalPercent = (self.finalPercent / 10) * 100 #Finding % correct solutions in matrix
-		self.heatPlot(agreement_matrices['run_1'])
+
+		for run in ga_runs:
+			self.heatPlot(agreement_matrices['run_1'], crowd_data, run)
 		#self.fitnessPlot(fitness_over_time)
 
 	def consensusSolution(self, agreement_matrices, run):
@@ -368,28 +370,51 @@ class Game:
 	# 	plt.legend()
 	# 	plt.show()	
 
-	def heatPlot(self, agreement_matrix):
+	def heatPlot(self, agreement_matrix, crowd_data, run):
+
+		# Extract and assign guesses of the 5 experts for the specified run
+		expert_guesses = []
+		expert_fitnesses = []
+		for expert in crowd_data.keys():
+			guess = crowd_data[expert]['runs'][run]['best_solution']
+			fitness = crowd_data[expert]['runs'][run]['solution_fitness']
+
+			expert_guesses.append(guess)
+			expert_fitnesses.append(fitness)
+
+    	# Assign the extracted guesses to variables for use in the heat map or other analyses
+		guess_1, guess_2, guess_3, guess_4, guess_5 = expert_guesses
+		fitness_1, fitness_2, fitness_3, fitness_4, fitness_5 = expert_fitnesses
+
 		print(agreement_matrix)
 		generationAcc = round(((self.correctguesses / self.genSize) * 100), 3)
 		mutation = self.mutationRate * 100
-		plt.figure(figsize=(8, 6))
+		plt.figure(figsize=(10, 9))
 		sns.heatmap(agreement_matrix, annot=True, fmt="d", cmap="Blues", cbar=True,
                 xticklabels=[chr(i + ord('a')) for i in range(26)],  # Label for 'a' to 'z'
                 yticklabels=[f"Pos {i + 1}" for i in range(5)],      # Positions for 5 letters
                 cbar_kws={'label': 'Frequency'})  
-		plt.title(f"Consensus Matrix: {self.word}", fontweight='bold')
+		
+		# Reduce title font size and add line breaks to fit content better
+		plt.title(
+        f"{run} Consensus Matrix: {self.word}\n"
+        f"Guesses --> Expert 1: {guess_1}  Expert 2: {guess_2}  Expert 3: {guess_3}  Expert 4: {guess_4}  Expert 5: {guess_5}\n"
+        f"Fitness --> Expert 1: {fitness_1}  Expert 2: {fitness_2}  Expert 3: {fitness_3}  Expert 4: {fitness_4}  Expert 5: {fitness_5}",
+        fontweight='bold', fontsize=8
+    	)
+
 		plt.text(0.85, 1.17, f"Generation Num: {self.genSize}", ha='left', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.text(0.85, 1.13, f"Generational GA Freq.: {self.correctguesses}", ha='left', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.text(0.85, 1.09, f"GA Accuracy: {generationAcc}%", ha='left', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.text(0.55, 1.17, f"Matrix Guess Accuracy (10): {self.finalPercent}%", ha='right', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.text(0.28, 1.13, f"Population Size: {self.popSize}", ha='right', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.text(0.32, 1.09, f"Mutation Rate: {mutation}%", ha='right', va='center', 
-             fontsize=12, color='black', transform=plt.gca().transAxes)
+             fontsize=8, color='black', transform=plt.gca().transAxes)
 		plt.subplots_adjust(top=0.85)
 		plt.show()
 		#plt.savefig("heatmap.png")
