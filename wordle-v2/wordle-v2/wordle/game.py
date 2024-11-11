@@ -10,6 +10,8 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
+import seaborn as sns  # For heatmaps
+
 class Game:
 
 	def __init__(self):
@@ -34,22 +36,16 @@ class Game:
 		#ga_result, fitness = self.play_wordle_with_ga()
 		#print(f"Resulting GA guess: {ga_result}")
 		#print(f"Actual word: {self.word}")
+		self.correctguesses = 0
+		self.wordVault = []
+		self.finalPercent = 0
+		self.popSize = 0
+		self.genSize = 0
 		self.wisdomOfCrowds()
 		print(f"The word was: {self.word}")
-
-		# consensus_solutions = {}
-		# run_num = 1
-		# for run in ga_runs
-
-		# consensus_solutions = {}
-
-# run_num = 1
-# for run in ga_runs:
-#     consensus_solution = build_consensus_solution(agreement_matrices, f"run_{run_num}")
-#     consensus_solutions[f"run_{run_num}"] = consensus_solution
-#     run_num += 1
-
-# print(consensus_solutions)
+		print(f"The num of times the word was found during GA was: {self.correctguesses}")
+		print(f"The best guesses from each generation: {self.wordVault}")
+	
 		
 	
 	def open_dictionaries(self):
@@ -219,6 +215,7 @@ class Game:
 			fitness_scores = [self.calculate_fitness(word) for word in population]
 			if self.word in population:
 				print(f"GA found the target word in generation {generation}!")
+				self.correctguesses += 1
 				return self.word
 		
 			new_population = []
@@ -235,6 +232,10 @@ class Game:
 			best_guess = max(population, key=self.calculate_fitness)
 			best_fitness = self.calculate_fitness(best_guess)
 		print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
+
+		self.wordVault.append(best_guess)
+		# if(best_guess == self.word):
+		# 	self.correctguesses += 1
 		print(f"Found in generation {generation}\nGA Finished - Best Guess:(hidden)")
 		return best_guess
 			
@@ -252,6 +253,8 @@ class Game:
 				fitness += 2
 			elif guess[i] in self.word:
 				fitness += 1
+		if guess == self.word:
+			fitness += 3
 		return fitness
 	
 	def select_parents(self, population, fitness_scores):
@@ -310,7 +313,6 @@ class Game:
             		'solution_fitness': fitness,
             		'ga_instance': f'ga_instance_{num}'
         		}
-
 				num += 1
 
 				fitness_over_time.append(fitness)
@@ -318,6 +320,7 @@ class Game:
 				for i, letter in enumerate(ga_result):
 					column_index = ord(letter) - ord('a')
 					agreement_matrices[run][i][column_index] += 1
+				
 			print("Agreement matrix for run_1:")
 			print(agreement_matrices['run_1'])
 
@@ -329,6 +332,13 @@ class Game:
 			run_num += 1
 		
 		print(f"The consensus solution is...: {consensus_solutions}")
+		
+		for run_num, consensus_solution in consensus_solutions.items():
+			if consensus_solution == self.word:
+				self.finalPercent += 1
+
+		self.finalPercent = (self.finalPercent / 10) * 100 #Finding % correct solutions in matrix
+		self.heatPlot(agreement_matrices['run_1'])
 		#self.fitnessPlot(fitness_over_time)
 
 	def consensusSolution(self, agreement_matrices, run):
@@ -352,5 +362,24 @@ class Game:
 	# 	plt.ylabel('Fitness')
 	# 	plt.title('Fitness Progression Over GA Runs')
 	# 	plt.legend()
-	# 	plt.show()
-    	
+	# 	plt.show()	
+
+	def heatPlot(self, agreement_matrix):
+		print(agreement_matrix)
+		plt.figure(figsize=(8, 6))
+		sns.heatmap(agreement_matrix, annot=True, fmt="d", cmap="Blues", cbar=True,
+                xticklabels=[chr(i + ord('a')) for i in range(26)],  # Label for 'a' to 'z'
+                yticklabels=[f"Pos {i + 1}" for i in range(5)],      # Positions for 5 letters
+                cbar_kws={'label': 'Frequency'})  
+		plt.title("Consensus matrix")
+		plt.text(0.85, 1.13, f"Final Word: {self.word}", ha='left', va='center', 
+             fontsize=14, color='black', transform=plt.gca().transAxes)
+		plt.text(0.85, 1.09, f"Generational GA Freq.: {self.correctguesses}", ha='left', va='center', 
+             fontsize=12, color='black', transform=plt.gca().transAxes)
+		plt.text(0.55, 1.13, f"Matrix guess accuracy (10): {self.finalPercent}%", ha='right', va='center', 
+             fontsize=14, color='black', transform=plt.gca().transAxes)
+		plt.show()
+		#plt.savefig("heatmap.png")
+
+	 	
+		

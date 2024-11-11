@@ -10,7 +10,7 @@ class Card(Drawable):
 	font:pygame.font.Font = pygame.font.SysFont(None, 60)
 
 	def __init__(self):
-		self.size = (60,60)
+		self.size = (30,30)
 		super().__init__(size=self.size)
 		self.bg_color = BLACK
 		self.used = False
