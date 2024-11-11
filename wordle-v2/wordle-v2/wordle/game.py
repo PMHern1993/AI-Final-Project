@@ -42,6 +42,7 @@ class Game:
 		self.popSize = 0
 		self.genSize = 0
 		self.mutationRate = 0
+		self.usedGens = 0
 		self.wisdomOfCrowds()
 		print(f"The word was: {self.word}")
 		print(f"The num of times the word was found during GA was: {self.correctguesses}")
@@ -67,7 +68,8 @@ class Game:
 			self.scoreboard = obj
 
 	def select_word(self):
-		self.word = random.choice(self.possible_answers)
+		#self.word = random.choice(self.possible_answers)
+		self.word = 'coyly'
 	
 	def setup(self):
 		self.open_dictionaries()
@@ -210,7 +212,7 @@ class Game:
 ############### Everything below here is part of my attempt to translate Tyler's GA/WoC to Cristie's currently existing game ############# 
 ###############																												 #############
 			
-	def genetic_algorithm(self, population_size=20, generations=100, mutation_rate=0.2):
+	def genetic_algorithm(self, population_size=20, generations=100, mutation_rate=0.1):
 		population = self.initialize_population(population_size)
 		self.popSize = population_size       # Establishing variables for data output
 		self.genSize = generations			 # -
@@ -219,6 +221,7 @@ class Game:
 			fitness_scores = [self.calculate_fitness(word) for word in population]
 			if self.word in population:
 				print(f"GA found the target word in generation {generation}!")
+				self.usedGens = self.usedGens + generation
 				self.correctguesses += 1
 				return self.word
 		
@@ -370,7 +373,9 @@ class Game:
 
 	def heatPlot(self, agreement_matrix):
 		print(agreement_matrix)
-		generationAcc = round(((self.correctguesses / self.genSize) * 100), 3)
+		#print(f"Used gens: {self.usedGens}")
+		#generationAcc = round(((self.correctguesses / self.usedGens) * 100), 3)
+		generationAcc = self.correctguesses / 50 * 100 # 5 = number of experts, each running twice 
 		mutation = self.mutationRate * 100
 		plt.figure(figsize=(8, 6))
 		sns.heatmap(agreement_matrix, annot=True, fmt="d", cmap="Blues", cbar=True,
@@ -378,11 +383,11 @@ class Game:
                 yticklabels=[f"Pos {i + 1}" for i in range(5)],      # Positions for 5 letters
                 cbar_kws={'label': 'Frequency'})  
 		plt.title(f"Consensus Matrix: {self.word}", fontweight='bold')
-		plt.text(0.85, 1.17, f"Generation Num: {self.genSize}", ha='left', va='center', 
+		plt.text(0.85, 1.17, f"Generations Used: {self.usedGens}", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
 		plt.text(0.85, 1.13, f"Generational GA Freq.: {self.correctguesses}", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
-		plt.text(0.85, 1.09, f"GA Accuracy: {generationAcc}%", ha='left', va='center', 
+		plt.text(0.85, 1.09, f"WoC Accuracy (Experts): {(generationAcc)}%", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
 		plt.text(0.55, 1.17, f"Matrix Guess Accuracy (10): {self.finalPercent}%", ha='right', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
