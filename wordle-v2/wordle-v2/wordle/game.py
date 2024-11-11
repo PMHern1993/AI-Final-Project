@@ -68,8 +68,8 @@ class Game:
 			self.scoreboard = obj
 
 	def select_word(self):
-		#self.word = random.choice(self.possible_answers)
-		self.word = 'coyly'
+		self.word = random.choice(self.possible_answers)
+		# self.word = 'coyly'
 	
 	def setup(self):
 		self.open_dictionaries()
