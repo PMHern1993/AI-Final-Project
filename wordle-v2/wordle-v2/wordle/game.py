@@ -45,7 +45,7 @@ class Game:
 		self.wisdomOfCrowds()
 		print(f"The word was: {self.word}")
 		print(f"The num of times the word was found during GA was: {self.correctguesses}")
-		print(f"The best guesses from each generation: {self.wordVault}")
+		print(f"Best guesses after GA-run game: {self.wordVault}")
 	
 		
 	
@@ -210,7 +210,7 @@ class Game:
 ############### Everything below here is part of my attempt to translate Tyler's GA/WoC to Cristie's currently existing game ############# 
 ###############																												 #############
 			
-	def genetic_algorithm(self, population_size=90, generations=100, mutation_rate=0.2):
+	def genetic_algorithm(self, population_size=20, generations=100, mutation_rate=0.2):
 		population = self.initialize_population(population_size)
 		self.popSize = population_size       # Establishing variables for data output
 		self.genSize = generations			 # -
@@ -236,7 +236,7 @@ class Game:
 			best_guess = max(population, key=self.calculate_fitness)
 			best_fitness = self.calculate_fitness(best_guess)
 		print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
-
+		
 		self.wordVault.append(best_guess)
 		# if(best_guess == self.word):
 		# 	self.correctguesses += 1
@@ -370,25 +370,25 @@ class Game:
 
 	def heatPlot(self, agreement_matrix):
 		print(agreement_matrix)
-		generationAcc = (self.correctguesses / self.genSize) * 100
+		generationAcc = round(((self.correctguesses / self.genSize) * 100), 3)
 		mutation = self.mutationRate * 100
 		plt.figure(figsize=(8, 6))
 		sns.heatmap(agreement_matrix, annot=True, fmt="d", cmap="Blues", cbar=True,
                 xticklabels=[chr(i + ord('a')) for i in range(26)],  # Label for 'a' to 'z'
                 yticklabels=[f"Pos {i + 1}" for i in range(5)],      # Positions for 5 letters
                 cbar_kws={'label': 'Frequency'})  
-		plt.title(f"Consensus matrix: {self.word}", fontweight='bold')
-		plt.text(0.85, 1.17, f"Generation num: {self.genSize}", ha='left', va='center', 
+		plt.title(f"Consensus Matrix: {self.word}", fontweight='bold')
+		plt.text(0.85, 1.17, f"Generation Num: {self.genSize}", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
 		plt.text(0.85, 1.13, f"Generational GA Freq.: {self.correctguesses}", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
 		plt.text(0.85, 1.09, f"GA Accuracy: {generationAcc}%", ha='left', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
-		plt.text(0.55, 1.17, f"Matrix guess accuracy (10): {self.finalPercent}%", ha='right', va='center', 
+		plt.text(0.55, 1.17, f"Matrix Guess Accuracy (10): {self.finalPercent}%", ha='right', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
-		plt.text(0.27, 1.13, f"Population Size: {self.popSize}", ha='right', va='center', 
+		plt.text(0.28, 1.13, f"Population Size: {self.popSize}", ha='right', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
-		plt.text(0.31, 1.09, f"Mutation Rate: {mutation}%", ha='right', va='center', 
+		plt.text(0.32, 1.09, f"Mutation Rate: {mutation}%", ha='right', va='center', 
              fontsize=12, color='black', transform=plt.gca().transAxes)
 		plt.subplots_adjust(top=0.85)
 		plt.show()
