@@ -8,6 +8,7 @@ from .game_state import GameState
 
 import numpy as np
 import time
+import matplotlib.pyplot as plt
 
 class Game:
 
@@ -30,11 +31,25 @@ class Game:
 		YELLOW = '\033[93m'  # Correct letter but in the wrong position
 		RESET = '\033[0m'    # Reset color
 
-		ga_result, fitness = self.play_wordle_with_ga()
-		print(f"Resulting GA guess: {ga_result}")
-		print(f"Actual word: {self.word}")
-		#print(fitness)
+		#ga_result, fitness = self.play_wordle_with_ga()
+		#print(f"Resulting GA guess: {ga_result}")
+		#print(f"Actual word: {self.word}")
+		self.wisdomOfCrowds()
+		print(f"The word was: {self.word}")
 
+		# consensus_solutions = {}
+		# run_num = 1
+		# for run in ga_runs
+
+		# consensus_solutions = {}
+
+# run_num = 1
+# for run in ga_runs:
+#     consensus_solution = build_consensus_solution(agreement_matrices, f"run_{run_num}")
+#     consensus_solutions[f"run_{run_num}"] = consensus_solution
+#     run_num += 1
+
+# print(consensus_solutions)
 		
 	
 	def open_dictionaries(self):
@@ -199,7 +214,6 @@ class Game:
 ###############																												 #############
 			
 	def genetic_algorithm(self, population_size=20, generations=100, mutation_rate=0.1):
-		print("YIPEE")
 		population = self.initialize_population(population_size)
 		for generation in range(generations):
 			fitness_scores = [self.calculate_fitness(word) for word in population]
@@ -220,7 +234,6 @@ class Game:
 			population = new_population
 			best_guess = max(population, key=self.calculate_fitness)
 			best_fitness = self.calculate_fitness(best_guess)
-		print(generation)
 		print(f"GA - Generation {generation}: Best Guess '{best_guess}' with Fitness {best_fitness}")
 		print(f"Found in generation {generation}\nGA Finished - Best Guess:(hidden)")
 		return best_guess
@@ -278,7 +291,9 @@ class Game:
 
 		agreement_matrices = {run: np.zeros((5, 26), dtype=int) for run in ga_runs}
 		num = 1
-		
+
+
+		fitness_over_time = []
 		for expert in experts:
 			print(f"Starting GA runs for {expert}")
 
@@ -298,7 +313,44 @@ class Game:
 
 				num += 1
 
+				fitness_over_time.append(fitness)
+
 				for i, letter in enumerate(ga_result):
 					column_index = ord(letter) - ord('a')
 					agreement_matrices[run][i][column_index] += 1
+			print("Agreement matrix for run_1:")
+			print(agreement_matrices['run_1'])
 
+		consensus_solutions = {}
+		run_num = 1
+		for run in ga_runs:
+			consensus_solution = self.consensusSolution(agreement_matrices, f"run_{run_num}")
+			consensus_solutions[f"run_{run_num}"] = consensus_solution
+			run_num += 1
+		
+		print(f"The consensus solution is...: {consensus_solutions}")
+		#self.fitnessPlot(fitness_over_time)
+
+	def consensusSolution(self, agreement_matrices, run):
+		agreement_matrix = agreement_matrices[run]
+		num_positions = agreement_matrix.shape[0]
+		consensus_solution = ""
+		
+		# For each position in the 5-letter word, find the letter with the highest frequency
+		for position in range(num_positions):
+			# Find the letter with the highest frequency in the current position
+			letter_index = np.argmax(agreement_matrix[position]) # Column with the highest value for this row
+			consensus_letter = chr(letter_index + ord('a'))      # Convert index to corresponding letter
+			consensus_solution += consensus_letter				 # Add the consensus letter for this position
+
+		return consensus_solution
+
+	# def fitnessPlot(self, fitness_over_time):
+	# 	plt.figure(figsize=(10, 6))
+	# 	plt.plot(fitness_over_time, label='Fitness over Time', color='blue')
+	# 	plt.xlabel('Run')
+	# 	plt.ylabel('Fitness')
+	# 	plt.title('Fitness Progression Over GA Runs')
+	# 	plt.legend()
+	# 	plt.show()
+    	
